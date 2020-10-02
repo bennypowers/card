@@ -35,8 +35,14 @@ Simple card custom element with header and actions.
 
 ## CSS Custom Properties
 
-| Property                      | Default | Description   |
-|-------------------------------|---------|---------------|
-| `--p-card-border-radius-root` | "16px"  | border-radius |
-| `--p-card-card-border`        |         | border        |
-| `--p-card-drop-shadow`        |         | box-shadow    |
+| Property                            | Default                                          | Description                        |
+|-------------------------------------|--------------------------------------------------|------------------------------------|
+| `--elevation`                       | 1                                                | elevation coefficient              |
+| `--p-card-background-elevation1`    | "#1111"                                          | background for 1st elevation cards |
+| `--p-card-background-elevation2`    | "#2222"                                          | background for 2nd elevation cards |
+| `--p-card-border-radius`            | "var(--p-card-border-radius-root, 16px) / var(--elevation, 1)" |                                    |
+| `--p-card-border-radius-root`       | "16px"                                           | border-radius                      |
+| `--p-card-card-border`              |                                                  | border                             |
+| `--p-card-divider`                  | "var(--p-card-background-elevation1)"            | color of heading divider           |
+| `--p-card-drop-shadow`              | "0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12)" | box-shadow                         |
+| `--p-card-heading-background-color` | "initial"                                        |                                    |

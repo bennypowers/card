@@ -8,7 +8,7 @@
     "test": "test"
   },
   "scripts": {
-    "prepublishOnly": "tsc",
+    "prepublishOnly": "tsc && npm run analyze",
     "start": "wds --open --watch",
     "build": "tsc",
     "analyze": "wca --outFile README.md && wca --format json --outFile custom-elements.json",
