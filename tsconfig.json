@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "declaration": true,
+    "target": "ES2019",
+    "lib": [
+      "DOM",
+      "ES2020"
+    ]
+  }
+}

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>&lt;p-card&gt;</title>
+    <script type="module" src="./index.ts"></script>
+    <link rel="preload" as="image" href="https://www.fillmurray.com/300/200">
+    <link rel="preload" as="script" href="https://unpkg.com/zero-md@1.4.0/build/zero-md.min.js">
+    <link rel="preload" as="style" href="https://unpkg.com/prism-themes@1.4.0/themes/prism-atom-dark.css">
+    <style>
+    html,
+    body {
+      height: 100%;
+      font-family: sans-serif;
+    }
+
+    main {
+      transition: opacity 0.2s ease-in-out;
+      will-change: opacity;
+      opacity: 1;
+      display: grid;
+      gap: 16px;
+    }
+
+    @media (min-width: 800px) {
+      main {
+        grid-template-columns: 1fr 2fr;
+      }
+    }
+
+    main[unresolved] {
+      opacity: 0;
+    }
+
+    a { color: lightskyblue }
+    a:visited { color: lightblue }
+
+    h1 a {
+      width: 24px;
+      display: inline-block;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      html {
+        --p-card-background-elevation1: #eee1;
+        --p-card-background-elevation2: #ddd1;
+        --p-card-divider: #eee1;
+      }
+      body {
+        background: #212529;
+        color: white;
+      }
+    }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>
+        &lt;p-card&gt;
+        <a href="https://github.com/bennypowers/card">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 16" fill="none">
+            <title>GitHub</title>
+            <path fill="currentColor" fill-rule="evenodd" d="M8.18391.249268C3.82241.249268.253906 3.81777.253906 8.17927c0 3.46933 2.279874 6.44313 5.451874 7.53353.3965.0991.49563-.1983.49563-.3965v-1.3878c-2.18075.4956-2.67638-.9912-2.67638-.9912-.3965-.8922-.89212-1.1895-.89212-1.1895-.69388-.4957.09912-.4957.09912-.4957.793.0992 1.1895.793 1.1895.793.69388 1.2887 1.88338.8922 2.27988.6939.09912-.4956.29737-.8921.49562-1.0904-1.78425-.1982-3.5685-.8921-3.5685-3.96496 0-.89212.29738-1.586.793-2.08162-.09912-.19825-.3965-.99125.09913-2.08163 0 0 .69387-.19825 2.18075.793.59475-.19825 1.28862-.29737 1.9825-.29737.69387 0 1.38775.09912 1.98249.29737 1.4869-.99125 2.1808-.793 2.1808-.793.3965 1.09038.1982 1.88338.0991 2.08163.4956.59475.793 1.28862.793 2.08162 0 3.07286-1.8834 3.66766-3.66764 3.86586.29737.3965.59474.8921.59474 1.586v2.1808c0 .1982.0991.4956.5948.3965 3.172-1.0904 5.4518-4.0642 5.4518-7.53353-.0991-4.3615-3.6676-7.930002-8.02909-7.930002z" clip-rule="evenodd"></path>
+          </svg>
+        </a>
+      </h1>
+      <p>A simple, collapsible card element</p>
+      <p>❤️ Proudly uses <a href="https://open-wc.org" target="_blank" rel="noopener noreferrer">open-wc</a> tools and recommendations.</p>
+    </header>
+
+    <main unresolved>
+
+      <p-card>
+        <h2 slot="heading">Heading</h2>
+        <p>Here's some content, on the house</p>
+        <figure>
+          <img src="https://www.fillmurray.com/300/200"/>
+          <figcaption>You can put whatever you want in here.</figcaption>
+        </figure>
+        <button slot="actions">I'm an action!</button>
+      </p-card>
+
+      <zero-md><script type="text/markdown"></script></zero-md>
+
+      <p-card collapsible>
+        <h2 slot="heading">Collapsible card</h2>
+        <p>Here's some content, on the house</p>
+        <figure>
+          <img src="https://www.fillmurray.com/300/200"/>
+          <figcaption>You can put whatever you want in here.</figcaption>
+        </figure>
+      </p-card>
+
+      <zero-md><script type="text/markdown"></script></zero-md>
+
+      <p-card>
+        <h2 slot="heading">Nested Elevations</h2>
+        <p-card>
+          <h2 slot="heading">Child</h2>
+          <p>Child cards will calculate their own elevations. This affects background and border-radius</p>
+        </p-card>
+      </p-card>
+
+      <zero-md><script type="text/markdown"></script></zero-md>
+
+    </main>
+    <script>
+    if (matchMedia('(prefers-color-scheme: dark)').matches) {
+      window.ZeroMd = {
+        config: {
+          cssUrls: [
+            'https://unpkg.com/prism-themes@1.4.0/themes/prism-atom-dark.css'
+          ]
+        }
+      }
+    }
+
+    for (const script of document.querySelectorAll('script[type="text/markdown"]'))
+      script.textContent = `\`\`\`html\n      ${script.closest('zero-md').previousElementSibling.outerHTML}\n\`\`\``;
+
+    async function main() {
+      const img = document.querySelector('img');
+      await customElements.whenDefined('p-card');
+      await customElements.whenDefined('zero-md');
+      await new Promise(resolve => img.complete ? resolve() : img.addEventListener('load', resolve, { once: true }));
+      for (const md of document.querySelectorAll('zero-md'))
+        md.render();
+      document.querySelector('main').removeAttribute('unresolved');
+    }
+    main();
+    </script>
+    <script src="https://unpkg.com/zero-md@1.4.0/build/zero-md.min.js"></script>
+  </body>
+</html>

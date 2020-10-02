@@ -1,0 +1,43 @@
+{
+  "name": "@power-elements/card",
+  "version": "0.0.1",
+  "description": "Simple collapsible card custom element with header and actions",
+  "main": "index.js",
+  "type": "module",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "start": "wds --open --watch",
+    "build": "tsc",
+    "analyze": "wca --outFile README.md && wca --format json --outFile custom-elements.json",
+    "test": "wtr --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bennypowers/card.git"
+  },
+  "keywords": [
+    "webcomponent",
+    "customelement",
+    "card"
+  ],
+  "author": "Benny Powers <web@bennypowers.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bennypowers/card/issues"
+  },
+  "homepage": "https://github.com/bennypowers/card#readme",
+  "dependencies": {
+    "lit-element": "^2.4.0"
+  },
+  "devDependencies": {
+    "@web/dev-server": "0.0.12",
+    "@web/dev-server-esbuild": "^0.2.4",
+    "@web/dev-server-rollup": "^0.2.9",
+    "@web/test-runner": "^0.7.39",
+    "rollup": "^2.28.2",
+    "rollup-plugin-lit-css": "^2.0.5",
+    "web-component-analyzer": "^1.1.6"
+  }
+}
