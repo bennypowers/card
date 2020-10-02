@@ -1,6 +1,6 @@
 {
   "name": "@power-elements/card",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Simple collapsible card custom element with header and actions",
   "main": "index.js",
   "type": "module",
