@@ -3,6 +3,7 @@
     "experimentalDecorators": true,
     "moduleResolution": "node",
     "declaration": true,
+    "sourceMap": true,
     "target": "ES2019",
     "lib": [
       "DOM",

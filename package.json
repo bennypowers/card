@@ -1,6 +1,6 @@
 {
   "name": "@power-elements/card",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Simple collapsible card custom element with header and actions",
   "main": "index.js",
   "type": "module",
@@ -8,11 +8,20 @@
     "test": "test"
   },
   "scripts": {
+    "prepublishOnly": "tsc",
     "start": "wds --open --watch",
     "build": "tsc",
     "analyze": "wca --outFile README.md && wca --format json --outFile custom-elements.json",
     "test": "wtr --coverage"
   },
+  "files": [
+    "*.js",
+    "*.d.ts",
+    "*.html",
+    "*.json",
+    "*.md",
+    "*.js.map"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bennypowers/card.git"
