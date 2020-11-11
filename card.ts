@@ -24,7 +24,16 @@ function isCollapseToggle(node: Node): node is HTMLElement {
 }
 
 /**
+ * @element p-card
  * Simple card custom element with header and actions.
+ * @example
+ * ```html
+ * <p-card>
+ *   <h2 slot="heading">A card!</h2>
+ *   <p>Has any content you want</p>
+ *   <button slot="actions">As well as action buttons</button>
+ * </p-card>
+ * ```
  * @slot - Content Slot.
  * @slot heading - Heading. Use an `<hgroup>` or `<h1>`, `<h2>`, etc.
  * @slot actions - Actions Footer. Use a `<menu>`
@@ -122,12 +131,6 @@ export class PCard extends LitElement {
       border-top-left-radius: var(--p-card-border-radius);
     }
 
-    :host([collapsible]) #heading {
-      margin-top: 0;
-      margin-bottom: 0;
-      margin-right: 4px;
-    }
-
     #heading ::slotted(h2),
     #heading ::slotted(h3),
     #heading ::slotted(h4),
@@ -143,27 +146,31 @@ export class PCard extends LitElement {
       color: inherit;
     }
 
-    [slot="collapse-toggle"] svg {
+    #collapse-toggle {
+      will-change: transform;
+      transition: transform 0.2s ease-in-out;
+    }
+
+    #collapse-toggle svg {
       fill: currentColor;
     }
 
-    [slot="collapse-toggle"],
-    header ::slotted([slot="collapse-toggle"]) {
+    #collapse-toggle button,
+    #collapse-toggle ::slotted(button) {
       color: inherit;
       border-radius: 100%;
-      will-change: transform;
       width: 40px;
       height: 40px;
       margin: 4px;
     }
 
     #actions ::slotted(button),
-    [slot="collapse-toggle"],
-    header ::slotted([slot="collapse-toggle"]) {
+    #collapse-toggle button,
+    #collapse-toggle ::slotted(button) {
       border: none;
       background: none;
       color: inherit;
-      transition: background 0.2s ease-in-out, transform 0.2s ease-in-out;
+      transition: background 0.2s ease-in-out;
       will-change: background;
     }
 
@@ -177,17 +184,17 @@ export class PCard extends LitElement {
         );
     }
 
-    [slot="collapse-toggle"]:hover,
-    [slot="collapse-toggle"]:focus,
-    header ::slotted([slot="collapse-toggle"]:hover),
-    header ::slotted([slot="collapse-toggle"]:focus),
+    #collapse-toggle button:hover,
+    #collapse-toggle button:focus,
+    #collapse-toggle ::slotted(button:hover),
+    #collapse-toggle ::slotted(button:focus),
     #actions ::slotted(button:hover),
     #actions ::slotted(button:focus) {
       background: var(--p-card-background-elevation2, #2222);
     }
 
-    [slot="collapse-toggle"]:active,
-    header ::slotted([slot="collapse-toggle"]:active),
+    button[slot="collapse-toggle"]:active,
+    #collapse-toggle ::slotted(button:active),
     #actions ::slotted(button:active) {
       background: var(--p-card-button-active, #1115);
     }
@@ -196,9 +203,14 @@ export class PCard extends LitElement {
       height: min-content;
     }
 
-    :host([collapsed]) [slot="collapse-toggle"],
-    :host([collapsed]) header ::slotted([slot="collapse-toggle"]) {
+    :host([collapsed]) #collapse-toggle {
       transform: rotate(180deg);
+    }
+
+    :host([collapsible]) #heading {
+      margin-top: 0;
+      margin-bottom: 0;
+      margin-right: 4px;
     }
 
     #actions {
@@ -236,8 +248,6 @@ export class PCard extends LitElement {
    */
   @property({ type: Boolean, reflect: true }) collapsed = false;
 
-  @query('slot[name="heading"]') private headingSlot: HTMLSlotElement;
-
   @query('button[slot="collapse-toggle"]') private defaultCollapseToggle: HTMLButtonElement;
 
   @queryAssignedNodes('collapse-toggle') private collapseToggleNodes: NodeListOf<HTMLButtonElement>;
@@ -258,13 +268,14 @@ export class PCard extends LitElement {
     return this.collapseToggleNodes?.[0] ?? null;
   }
 
-  private get collapseTitle() {
+  private get collapseLabel() {
     return this.collapsed ? 'expand' : 'collapse';
   }
 
   constructor() {
     super();
     this.toggleCollapsed = this.toggleCollapsed.bind(this);
+    this.onMutate = this.onMutate.bind(this);
     this.mo = new MutationObserver(this.onMutate);
     this.mo.observe(this, { childList: true });
   }
@@ -300,14 +311,11 @@ export class PCard extends LitElement {
         <slot name="heading"></slot>
         <slot name="head-actions"></slot>
         ${!this.collapsible ? '' : html`
-        <slot name="collapse-toggle" @slotchange="${this.onCollapseToggleSlotchange}">
-          <button slot="collapse-toggle" title="${this.collapseTitle}" @click="${this.toggleCollapsed}">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-              <path d="M0 0h24v24H0z" fill="none"/>
-              <path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/>
-            </svg>
-          </button>
-        </slot>
+        <span id="collapse-toggle">
+          <slot name="collapse-toggle" @slotchange="${this.onCollapseToggleSlotchange}">
+            ${this.renderDefaultCollapseButton()}
+          </slot>
+        </span>
         `}
       </header>
 
@@ -315,14 +323,17 @@ export class PCard extends LitElement {
           class="${classMap({ hasHeading })}"
           ?hidden="${this.collapsible && this.collapsed}"/>
 
+      ${!this.collapsible ? html`
       <div id="content" part="content">
-        ${!this.collapsible ? html`
         <slot></slot>
+      </div>
         ` : html`
-        <details ?open="${!this.collapsed}">
+      <div id="content">
+        <details ?open="${!this.collapsed}" part="content">
           <summary hidden></summary>
           <slot></slot>
         </details>
+      </div>
         `}
       </div>
 
@@ -336,6 +347,17 @@ export class PCard extends LitElement {
     `;
   }
 
+  protected renderDefaultCollapseButton(): TemplateResult {
+    return html`
+      <button slot="collapse-toggle" aria-label="${this.collapseLabel}" @click="${this.toggleCollapsed}">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M0 0h24v24H0z" fill="none"/>
+          <path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/>
+        </svg>
+      </button>
+    `;
+  }
+
   protected updated(changed: PropertyValues): void {
     if (this.collapsible && changed.has('collapsed'))
       this.collapsedChanged();
@@ -343,7 +365,7 @@ export class PCard extends LitElement {
 
   private collapsedChanged() {
     if (this.collapseToggle && this.collapseToggle !== this.defaultCollapseToggle)
-      this.collapseToggle.title = this.collapseTitle;
+      this.collapseToggle.title = this.collapseLabel;
     this.dispatchEvent(new CustomEvent(this.collapsed ? 'collapse' : 'expand'));
   }
 

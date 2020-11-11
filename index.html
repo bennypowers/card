@@ -3,10 +3,16 @@
   <head>
     <meta charset="utf-8">
     <title>&lt;p-card&gt;</title>
-    <script type="module" src="https://unpkg.com/@power-elements/card?module"></script>
+    <!-- <script type="module" src="https://unpkg.com/@power-elements/card?module"></script> -->
+    <script type="module" src="./card.js"></script>
+    <script type="module">
+      import '@material/mwc-icon-button';
+      import '@material/mwc-button';
+    </script>
     <link rel="preload" as="image" href="https://www.fillmurray.com/300/200">
     <link rel="preload" as="script" href="https://unpkg.com/zero-md@1.4.0/build/zero-md.min.js">
     <link rel="preload" as="style" href="https://unpkg.com/prism-themes@1.4.0/themes/prism-atom-dark.css">
+    <link href="https://fonts.googleapis.com/css?family=Material+Icons&display=block" rel="stylesheet">
     <style>
     html,
     body {
@@ -51,6 +57,22 @@
         color: white;
       }
     }
+
+    #mwc-example:not(.loaded)::before {
+      content: '';
+      display: block;
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      background: grey;
+      z-index: 1;
+    }
+
+    #override article {
+      display: grid;
+      gap: 8px;
+    }
     </style>
   </head>
   <body>
@@ -80,8 +102,6 @@
         <button slot="actions">I'm an action!</button>
       </p-card>
 
-      <zero-md><script type="text/markdown"></script></zero-md>
-
       <p-card collapsible>
         <h2 slot="heading">Collapsible card</h2>
         <p>Here's some content, on the house</p>
@@ -91,17 +111,71 @@
         </figure>
       </p-card>
 
-      <zero-md><script type="text/markdown"></script></zero-md>
-
       <p-card>
         <h2 slot="heading">Nested Elevations</h2>
         <p-card>
-          <h2 slot="heading">Child</h2>
+          <h3 slot="heading">Child</h3>
           <p>Child cards will calculate their own elevations. This affects background and border-radius</p>
         </p-card>
       </p-card>
 
-      <zero-md><script type="text/markdown"></script></zero-md>
+      <p-card id="mwc-example" collapsible>
+        <h2 slot="heading">Use it with Material Components</h2>
+        <mwc-icon-button slot="collapse-toggle" label="toggle collapsed">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M0 0h24v24H0z" fill="none"/>
+            <path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/>
+          </svg>
+        </mwc-icon-button>
+        <p>Just apply some mwc-specific styles (see source), and slot in mwc components.</p>
+        <style>
+          p-card [slot="actions"] {
+            /* halve to get next elevation level up */
+            --mdc-shape-small: calc(var(--p-card-border-radius) / 2);
+          }
+
+          @media (prefers-color-scheme: dark) {
+            :root {
+              --mdc-theme-primary: salmon;
+            }
+          }
+        </style>
+        <mwc-button slot="actions" label="Elevated corners 😎" outlined></mwc-button>
+      </p-card>
+
+      <p-card id="override" collapsible>
+        <h2 slot="heading">Override default Collapse button</h2>
+        <p>
+          If you want to customize every card's collapse button,
+          subclass and override the <code>renderDefaultCollapseButton</code> method.
+          Just make sure to hook up the <code>toggleCollapsed</code>
+          click-event handler and the <code>collapseLabel</code>
+          property to the aria-label attribute.
+        </p>
+        <script type="module">
+          import { html } from 'lit-html'
+          customElements.define('q-card', class extends customElements.get('p-card') {
+            static properties = { icon: { type: String } };
+
+            renderDefaultCollapseButton() {
+              return html`
+                <mwc-icon-button
+                    slot="collapse-toggle"
+                    aria-label="${this.collapseLabel}"
+                    @click="${this.toggleCollapsed}"
+                    icon="${this.icon || 'star'}"
+                ></mwc-icon-button>
+              `;
+            }
+          });
+        </script>
+        <article>
+          <q-card collapsible> <h3 slot="heading">Eenie</h3> <p>Catch</p> </q-card>
+          <q-card collapsible collapsed icon="cached"> <h3 slot="heading">Meenie</h3> <p>A Tiger</p> </q-card>
+          <q-card collapsible icon="pan_tool"> <h3 slot="heading">Minie</h3> <p>By</p> </q-card>
+          <q-card collapsible collapsed icon="polymer"> <h3 slot="heading">Mo</h3> <p>The Toe</p> </q-card>
+        </article>
+      </p-card>
 
     </main>
     <script>
@@ -115,17 +189,29 @@
       }
     }
 
-    for (const script of document.querySelectorAll('script[type="text/markdown"]'))
-      script.textContent = `\`\`\`html\n      ${script.closest('zero-md').previousElementSibling.outerHTML}\n\`\`\``;
-
     async function main() {
       const img = document.querySelector('img');
       await customElements.whenDefined('p-card');
       await customElements.whenDefined('zero-md');
       await new Promise(resolve => img.complete ? resolve() : img.addEventListener('load', resolve, { once: true }));
-      for (const md of document.querySelectorAll('zero-md'))
-        md.render();
+
+      function appendMarkdown(card) {
+        const script = document.createElement('script');
+        script.type = 'text/markdown';
+        script.textContent = `\`\`\`html\n      ${card.outerHTML}\n\`\`\``;
+        const zeroMd = document.createElement('zero-md');
+        if (matchMedia('(prefers-color-scheme: dark)').matches)
+          zeroMd.setAttribute('css-urls', '["https://unpkg.com/prism-themes@1.4.0/themes/prism-atom-dark.css"]');
+        zeroMd.appendChild(script);
+        card.parentNode.insertBefore(zeroMd, card.nextElementSibling);
+      }
+
+      document.querySelectorAll("main > p-card").forEach(appendMarkdown);
       document.querySelector('main').removeAttribute('unresolved');
+
+      await customElements.whenDefined("mwc-button")
+      await customElements.whenDefined("mwc-icon-button")
+      document.getElementById('mwc-example').classList.add('loaded')
     }
     main();
     </script>
